@@ -1,0 +1,99 @@
+{
+  "name": "schematic-supertest",
+  "version": "0.1.0",
+  "description": "TypeScript and JavaScript authoring primitives for Schematic supertests",
+  "license": "MIT OR Apache-2.0",
+  "type": "module",
+  "main": "./lib/cjs/node.js",
+  "module": "./lib/esm/node.js",
+  "types": "./lib/esm/node.d.ts",
+  "browser": {
+    "./lib/esm/node.js": "./lib/esm/browser.js",
+    "./lib/cjs/node.js": "./lib/cjs/browser.js"
+  },
+  "exports": {
+    ".": {
+      "browser": {
+        "import": {
+          "types": "./lib/esm/browser.d.ts",
+          "default": "./lib/esm/browser.js"
+        },
+        "require": {
+          "types": "./lib/cjs/browser.d.ts",
+          "default": "./lib/cjs/browser.js"
+        }
+      },
+      "node": {
+        "import": {
+          "types": "./lib/esm/node.d.ts",
+          "default": "./lib/esm/node.js"
+        },
+        "require": {
+          "types": "./lib/cjs/node.d.ts",
+          "default": "./lib/cjs/node.js"
+        }
+      },
+      "default": {
+        "import": {
+          "types": "./lib/esm/browser.d.ts",
+          "default": "./lib/esm/browser.js"
+        },
+        "require": {
+          "types": "./lib/cjs/browser.d.ts",
+          "default": "./lib/cjs/browser.js"
+        }
+      }
+    },
+    "./browser": {
+      "import": {
+        "types": "./lib/esm/browser.d.ts",
+        "default": "./lib/esm/browser.js"
+      },
+      "require": {
+        "types": "./lib/cjs/browser.d.ts",
+        "default": "./lib/cjs/browser.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/",
+    "src/",
+    "LICENSE-MIT",
+    "LICENSE-APACHE",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schematic-tech/supertest-javascript.git"
+  },
+  "homepage": "https://github.com/schematic-tech/supertest-javascript#readme",
+  "bugs": {
+    "url": "https://github.com/schematic-tech/supertest-javascript/issues"
+  },
+  "keywords": [
+    "schematic",
+    "supertest",
+    "verification",
+    "typescript",
+    "javascript"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && node --test tests/authoring.test.mjs",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.2",
+    "typescript": "5.9.3",
+    "esbuild": "0.28.2"
+  }
+}
