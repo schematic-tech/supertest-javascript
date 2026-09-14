@@ -92,7 +92,7 @@
     "prepack": "npm run build"
   },
   "devDependencies": {
-    "@types/node": "22.20.2",
+    "@types/node": "26.5.1",
     "typescript": "5.9.3",
     "esbuild": "0.28.2"
   }
