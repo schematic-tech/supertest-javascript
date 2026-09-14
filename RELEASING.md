@@ -10,20 +10,32 @@ npm package: **`schematic-supertest`** (one package for both languages).
    without copying private Git history. Enable Actions and create environment
    **`release`**, allowing version tags. Leave required reviewers unset if a tag
    should publish automatically.
-2. Confirm your npm account can create `schematic-supertest`. The current name
-   availability check is not a reservation. npm requires the package to exist
-   before its trusted publisher can be configured, so the first tag uses a token.
-3. Generate a short-lived **granular access token** in npm's website. Grant package
-   **Read and write (publish and stage)** permissions, select **All Packages** so
-   the new unscoped package can be created, and enable **Bypass two-factor
-   authentication** for unattended publication. Do not select stage-only access.
-   Store it as environment secret **`NPM_TOKEN`** in the public repository:
+2. Sign in to an individual npm account with 2FA enabled and membership in the npm
+   organization **`schematic-tech`**. npm organizations are separate from GitHub
+   organizations. Create a free public-package organization if needed.
+3. Keep the global package name **`schematic-supertest`**. Organization team access
+   does not require renaming it to a scoped package. Confirm that your npm account
+   may create the name; availability checks do not reserve it.
+4. npm requires the package to exist before configuring trusted publishing. For
+   the first version only, download the **successful final public commit's CI
+   artifact** and publish that exact tested tarball using browser login/2FA:
 
 ```sh
-gh secret set NPM_TOKEN --repo schematic-tech/supertest-javascript --env release
+npm login --auth-type=web --registry=https://registry.npmjs.org
+# Set ci_run to the successful ci.yml run for the exact public HEAD.
+gh run download "$ci_run" --repo schematic-tech/supertest-javascript \
+  --name release-assets --dir dist
+python3 scripts/release.py verify-assets
+npm publish dist/schematic-supertest-0.1.0.tgz --access public --ignore-scripts \
+  --registry=https://registry.npmjs.org
 ```
 
-After public CI passes, publish the first version from its public checkout:
+The interactive first upload has no GitHub OIDC provenance. Later new versions
+published by Actions have provenance. Do not create a placeholder version or
+rebuild the tarball locally. No `NPM_TOKEN` GitHub secret is used.
+
+After configuring team access and trusted publishing below, finish the first
+release from the same public checkout:
 
 ```sh
 python3 scripts/release.py check --tag v0.1.0
@@ -31,12 +43,28 @@ git tag -a v0.1.0 -m 'Release 0.1.0'
 git push origin v0.1.0
 ```
 
-The workflow runs the full CI, downloads and verifies the tested tarball, publishes
-it with provenance, and creates a GitHub Release. GitHub's built-in token handles
+The workflow runs the full CI, downloads and verifies the tested tarball, checks
+that the initial npm upload has identical SHA512 integrity, and creates a GitHub
+Release. For later versions it publishes through OIDC with provenance. GitHub's built-in token handles
 release assets; no GitHub PAT is needed. Normal branch pushes only build/test;
 publishing is guarded by the exact public repository and matching version tag.
 
-## Switch to trusted publishing after the first release
+## Organization management and trusted publishing
+
+Grant a team within the npm organization read/write access to the existing global
+package. For example, create a dedicated `supertest-maintainers` team, add the
+release maintainers who are already organization members, then grant it access:
+
+```sh
+npm team create schematic-tech:supertest-maintainers
+npm team add schematic-tech:supertest-maintainers YOUR_NPM_USERNAME
+npm access grant read-write schematic-tech:supertest-maintainers schematic-supertest
+npm access list packages schematic-tech:supertest-maintainers --json
+```
+
+Reuse the team if it already exists. Team access manages permissions; npm still
+records the authenticated account or workflow as the publisher of each version.
+It does not rename the package or make an organization into a login account.
 
 In the npm package's Settings → Trusted publishing, add a GitHub Actions publisher:
 
@@ -53,14 +81,10 @@ npm trust github schematic-supertest --repo schematic-tech/supertest-javascript 
   --file release.yml --env release --allow-publish
 ```
 
-Then remove and revoke the bootstrap token:
-
-```sh
-gh secret delete NPM_TOKEN --repo schematic-tech/supertest-javascript --env release
-```
-
-Revoke it on npm's Access Tokens page. Future releases use GitHub OIDC and need no
-stored npm token. The workflow pins npm 11.16.0 and uses GitHub-hosted runners with
+Check the saved configuration with `npm trust list schematic-supertest --json`.
+The workflow uses GitHub OIDC and needs no stored npm token. If you created a token
+while following an older version of this guide, revoke it and remove any GitHub
+`NPM_TOKEN` secret. The workflow pins npm 11.16.0 and uses GitHub-hosted runners with
 `id-token: write`; these satisfy npm's trusted-publishing requirements. Keep the
 publisher configuration and `package.json`'s public repository URL in agreement.
 
@@ -79,5 +103,6 @@ are uploaded to a draft first and published assets are retained unchanged.
 
 References: [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/),
 [trusted publisher prerequisites](https://docs.npmjs.com/cli/v11/commands/npm-trust/),
-[granular tokens](https://docs.npmjs.com/creating-and-viewing-access-tokens/),
+[organization scopes and unscoped packages](https://docs.npmjs.com/about-organization-scopes-and-packages/),
+[team package access](https://docs.npmjs.com/cli/v11/commands/npm-access/),
 [provenance](https://docs.npmjs.com/generating-provenance-statements/).

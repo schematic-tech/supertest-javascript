@@ -3,7 +3,6 @@
 import base64
 import hashlib
 import json
-import os
 import shutil
 import subprocess
 import urllib.error
@@ -29,12 +28,8 @@ if published is not None:
     print('Identical tarball is already published on npm; keeping it unchanged')
 else:
     npm = shutil.which('npm')
-    environment = os.environ.copy()
-    # setup-node supplies an npmrc referencing NODE_AUTH_TOKEN. Only the first
-    # publication needs a bootstrap token; subsequent releases use GitHub OIDC.
-    token = environment.pop('NPM_BOOTSTRAP_TOKEN', '')
-    if token:
-        environment['NODE_AUTH_TOKEN'] = token
+    # setup-node supplies an npmrc and placeholder NODE_AUTH_TOKEN. npm obtains
+    # publishing credentials through GitHub OIDC; no stored npm token is used.
     subprocess.run([npm, 'publish', str(artifact), '--access', 'public', '--provenance',
                     '--ignore-scripts', '--registry', 'https://registry.npmjs.org/'],
-                   cwd=ROOT, env=environment, check=True)
+                   cwd=ROOT, check=True)

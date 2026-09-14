@@ -41,8 +41,6 @@ jobs:
         registry-url: https://registry.npmjs.org
     - run: npm install --global npm@11.16.0
     - run: python scripts/publish.py
-      env:
-        NPM_BOOTSTRAP_TOKEN: ${{ secrets.NPM_TOKEN }}
     - run: python scripts/release.py github
       env:
         GH_TOKEN: ${{ github.token }}
