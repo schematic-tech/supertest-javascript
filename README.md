@@ -4,20 +4,27 @@
 npm install --save-dev schematic-supertest
 ```
 
-```typescript
-import { assume, supertest } from "schematic-supertest";
+From the [text-tools example](examples/text-tools):
 
-export const incrementIsLarger = supertest((value: number) => {
-  assume(Number.isSafeInteger(value) && value < Number.MAX_SAFE_INTEGER);
-  if (value + 1 <= value) {
-    throw new Error("Increment must increase the value");
-  }
+```javascript
+import assert from 'node:assert/strict';
+import { assume, supertest } from 'schematic-supertest';
+import { collapseSpaces } from '../src/text.js';
+
+export const collapsingSpacesAgainChangesNothing = supertest((text) => {
+  assume(typeof text === 'string');
+  const once = collapseSpaces(text);
+  const twice = collapseSpaces(once);
+
+  assert.equal(twice, once);
 });
 ```
 
-For JavaScript, omit the `: number` annotation.
-
 See the [Getting Started Documentation](https://docs.schematic.tech/pup).
+
+## Example
+
+Try [text-tools](https://github.com/schematic-tech/supertest-javascript/tree/main/examples/text-tools), a space-normalization example with a supertest.
 
 ## License
 
