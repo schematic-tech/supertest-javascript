@@ -27,7 +27,7 @@ npm login --auth-type=web --registry=https://registry.npmjs.org
 gh run download "$ci_run" --repo schematic-tech/supertest-javascript \
   --name release-assets --dir dist
 python3 scripts/release.py verify-assets
-npm publish dist/schematic-tech-supertest-0.2.0.tgz --access public --ignore-scripts \
+npm publish ./dist/schematic-tech-supertest-0.2.0.tgz --access public --ignore-scripts \
   --registry=https://registry.npmjs.org
 ```
 
