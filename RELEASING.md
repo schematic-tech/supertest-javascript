@@ -1,8 +1,8 @@
 # Releasing TypeScript and JavaScript
 
-Prepared version: **0.1.0**, licensed **MIT OR Apache-2.0** at the user's option.
+Prepared version: **0.2.0**, licensed **MIT OR Apache-2.0** at the user's option.
 Public repository: `schematic-tech/supertest-javascript`.
-npm package: **`schematic-supertest`** (one package for both languages).
+npm package: **`@schematic-tech/supertest`** (one package for both languages).
 
 ## One-time setup
 
@@ -13,9 +13,10 @@ npm package: **`schematic-supertest`** (one package for both languages).
 2. Sign in to an individual npm account with 2FA enabled and membership in the npm
    organization **`schematic-tech`**. npm organizations are separate from GitHub
    organizations. Create a free public-package organization if needed.
-3. Keep the global package name **`schematic-supertest`**. Organization team access
-   does not require renaming it to a scoped package. Confirm that your npm account
-   may create the name; availability checks do not reserve it.
+3. Publish the scoped package **`@schematic-tech/supertest`**. The previous
+   `schematic-supertest` package stays available for existing consumers. After the
+   scoped release is verified, deprecate the old package with migration instructions;
+   never unpublish its existing versions.
 4. npm requires the package to exist before configuring trusted publishing. For
    the first version only, download the **successful final public commit's CI
    artifact** and publish that exact tested tarball using browser login/2FA:
@@ -26,7 +27,7 @@ npm login --auth-type=web --registry=https://registry.npmjs.org
 gh run download "$ci_run" --repo schematic-tech/supertest-javascript \
   --name release-assets --dir dist
 python3 scripts/release.py verify-assets
-npm publish dist/schematic-supertest-0.1.0.tgz --access public --ignore-scripts \
+npm publish dist/schematic-tech-supertest-0.2.0.tgz --access public --ignore-scripts \
   --registry=https://registry.npmjs.org
 ```
 
@@ -38,9 +39,9 @@ After configuring team access and trusted publishing below, finish the first
 release from the same public checkout:
 
 ```sh
-python3 scripts/release.py check --tag v0.1.0
-git tag -a v0.1.0 -m 'Release 0.1.0'
-git push origin v0.1.0
+python3 scripts/release.py check --tag v0.2.0
+git tag -a v0.2.0 -m 'Release 0.2.0'
+git push origin v0.2.0
 ```
 
 The workflow runs the full CI, downloads and verifies the tested tarball, checks
@@ -51,14 +52,14 @@ publishing is guarded by the exact public repository and matching version tag.
 
 ## Organization management and trusted publishing
 
-Grant a team within the npm organization read/write access to the existing global
+Grant a team within the npm organization read/write access to the scoped
 package. For example, create a dedicated `supertest-maintainers` team, add the
 release maintainers who are already organization members, then grant it access:
 
 ```sh
 npm team create schematic-tech:supertest-maintainers
 npm team add schematic-tech:supertest-maintainers YOUR_NPM_USERNAME
-npm access grant read-write schematic-tech:supertest-maintainers schematic-supertest
+npm access grant read-write schematic-tech:supertest-maintainers @schematic-tech/supertest
 npm access list packages schematic-tech:supertest-maintainers --json
 ```
 
@@ -77,11 +78,11 @@ In the npm package's Settings → Trusted publishing, add a GitHub Actions publi
 Alternatively, with npm 11.15+ and an interactive login/2FA session:
 
 ```sh
-npm trust github schematic-supertest --repo schematic-tech/supertest-javascript \
+npm trust github @schematic-tech/supertest --repo schematic-tech/supertest-javascript \
   --file release.yml --env release --allow-publish
 ```
 
-Check the saved configuration with `npm trust list schematic-supertest --json`.
+Check the saved configuration with `npm trust list @schematic-tech/supertest --json`.
 The workflow uses GitHub OIDC and needs no stored npm token. If you created a token
 while following an older version of this guide, revoke it and remove any GitHub
 `NPM_TOKEN` secret. The workflow pins npm 11.16.0 and uses GitHub-hosted runners with

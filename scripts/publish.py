@@ -13,9 +13,9 @@ from release import ROOT, VERSION, require_public_tag, verify_assets
 
 require_public_tag()
 verify_assets()
-artifact = ROOT / 'dist' / f'schematic-supertest-{VERSION}.tgz'
+artifact = ROOT / 'dist' / f'schematic-tech-supertest-{VERSION}.tgz'
 try:
-    with urllib.request.urlopen(f'https://registry.npmjs.org/schematic-supertest/{VERSION}', timeout=30) as response:
+    with urllib.request.urlopen(f'https://registry.npmjs.org/@schematic-tech%2Fsupertest/{VERSION}', timeout=30) as response:
         published = json.load(response)
 except urllib.error.HTTPError as error:
     if error.code != 404:

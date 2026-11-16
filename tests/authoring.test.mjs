@@ -4,8 +4,8 @@ import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 import { Worker } from "node:worker_threads";
-import { assume, supertest } from "schematic-supertest";
-import * as browser from "schematic-supertest/browser";
+import { assume, supertest } from "@schematic-tech/supertest";
+import * as browser from "@schematic-tech/supertest/browser";
 
 const require = createRequire(import.meta.url);
 
@@ -26,13 +26,13 @@ test("true assumptions evaluate once and continue", () => {
   let calls = 0;
   assume(++calls);
   assert.equal(calls, 1);
-  require("schematic-supertest").assume(true);
+  require("@schematic-tech/supertest").assume(true);
 });
 
 test("false assumptions terminate helper callers successfully in ESM and CommonJS", () => {
   for (const [type, load] of [
-    ["module", 'import { assume } from "schematic-supertest";'],
-    ["commonjs", 'const { assume } = require("schematic-supertest");'],
+    ["module", 'import { assume } from "@schematic-tech/supertest";'],
+    ["commonjs", 'const { assume } = require("@schematic-tech/supertest");'],
   ]) {
     // Synchronous exit-handler writes remain reliable even when stdout is piped.
     const source = `${load}
@@ -53,7 +53,7 @@ test("false assumptions terminate helper callers successfully in ESM and CommonJ
 
 test("assertions still fail for admitted inputs", () => {
   const result = spawnSync(process.execPath, ["--input-type=module", "-e",
-    'import { assume } from "schematic-supertest"; import assert from "node:assert/strict"; assume(true); assert.fail("property failed");'],
+    'import { assume } from "@schematic-tech/supertest"; import assert from "node:assert/strict"; assume(true); assert.fail("property failed");'],
     { encoding: "utf8", timeout: 10000 });
   assert.ifError(result.error);
   assert.notEqual(result.status, 0);
@@ -61,7 +61,7 @@ test("assertions still fail for admitted inputs", () => {
 });
 
 test("a Node worker exits successfully without terminating the parent", async () => {
-  const worker = new Worker('require("schematic-supertest").assume(false); throw new Error("continued");', { eval: true });
+  const worker = new Worker('require("@schematic-tech/supertest").assume(false); throw new Error("continued");', { eval: true });
   const code = await new Promise((resolve, reject) => {
     worker.on("error", reject);
     worker.on("exit", resolve);
@@ -71,7 +71,7 @@ test("a Node worker exits successfully without terminating the parent", async ()
 
 test("browser rejection is a distinct catchable error, including for async inputs", async () => {
   browser.assume(true);
-  for (const api of [browser, require("schematic-supertest/browser")]) {
+  for (const api of [browser, require("@schematic-tech/supertest/browser")]) {
     let unwound = false;
     assert.throws(() => {
       try { api.assume(false); assert.fail("continued"); }
@@ -84,7 +84,7 @@ test("browser rejection is a distinct catchable error, including for async input
 
 test("browser condition selects the portable entry without an explicit subpath", () => {
   const result = spawnSync(process.execPath, ["--conditions=browser", "--input-type=module", "-e",
-    'import { assume, AssumptionNotMet } from "schematic-supertest"; let rejected=false; try { assume(false); } catch(e) { if (!(e instanceof AssumptionNotMet)) throw e; rejected=true; } if(!rejected) throw new Error("continued"); console.log("rejected");'],
+    'import { assume, AssumptionNotMet } from "@schematic-tech/supertest"; let rejected=false; try { assume(false); } catch(e) { if (!(e instanceof AssumptionNotMet)) throw e; rejected=true; } if(!rejected) throw new Error("continued"); console.log("rejected");'],
     { encoding: "utf8", timeout: 10000 });
   assert.ifError(result.error);
   assert.equal(result.status, 0, result.stderr);

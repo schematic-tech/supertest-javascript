@@ -31,7 +31,7 @@ def test_package(artifact: Path) -> None:
         run(NPM, 'install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', str(artifact), cwd=work)
         shutil.copyfile(ROOT / 'tests/authoring.test.mjs', work / 'authoring.test.mjs')
         run(NODE, '--test', 'authoring.test.mjs', cwd=work)
-        types = '''import { assume, supertest } from "schematic-supertest";
+        types = '''import { assume, supertest } from "@schematic-tech/supertest";
 const original = (value: string | null): number => {
   assume(value !== null);
   return value.length;
@@ -63,7 +63,7 @@ void result; void literal;
         test_browser = '''const assert = require("node:assert/strict");
 const { buildSync } = require(process.argv[1]);
 const { runInNewContext } = require("node:vm");
-const result = buildSync({ stdin: { contents: 'export * from "schematic-supertest";', resolveDir: process.cwd() },
+const result = buildSync({ stdin: { contents: 'export * from "@schematic-tech/supertest";', resolveDir: process.cwd() },
   bundle: true, platform: "browser", format: "iife", globalName: "Schematic", write: false });
 const context = {};
 runInNewContext(result.outputFiles[0].text, context);
@@ -85,7 +85,7 @@ def main() -> None:
     validate()
     if not NPM or not NODE:
         raise SystemExit('Node.js 22+ and npm are required')
-    artifact = ROOT / 'dist' / f'schematic-supertest-{VERSION}.tgz'
+    artifact = ROOT / 'dist' / f'schematic-tech-supertest-{VERSION}.tgz'
     if not args.test_only:
         shutil.rmtree(ROOT / 'dist', ignore_errors=True)
         (ROOT / 'dist').mkdir()

@@ -37,11 +37,12 @@ def validate(tag: str | None = None) -> None:
         raise SystemExit('Release repository must be the matching schematic-tech repository')
     assert language == 'javascript'
     project = json.loads((ROOT / 'package.json').read_text())
-    assert project['name'] == 'schematic-supertest' and project['version'] == VERSION
+    assert project['name'] == '@schematic-tech/supertest' and project['version'] == VERSION
     assert project['license'] == 'MIT OR Apache-2.0'
     assert project['repository']['url'] == f"git+https://github.com/{CONFIG['repository']}.git"
     assert project['publishConfig'] == {'access': 'public', 'registry': 'https://registry.npmjs.org/'}
     lock = json.loads((ROOT / 'package-lock.json').read_text())
+    assert lock['name'] == project['name'] and lock['packages']['']['name'] == project['name']
     assert lock['version'] == VERSION and lock['packages']['']['version'] == VERSION
     print(f'{CONFIG["repository"]}: metadata agrees with v{VERSION}')
 
