@@ -1,6 +1,6 @@
 # Releasing TypeScript and JavaScript
 
-Prepared version: **0.2.0**, licensed **MIT OR Apache-2.0** at the user's option.
+Prepared version: **0.2.1**, licensed **MIT OR Apache-2.0** at the user's option.
 Public repository: `schematic-tech/supertest-javascript`.
 npm package: **`@schematic-tech/supertest`** (one package for both languages).
 
